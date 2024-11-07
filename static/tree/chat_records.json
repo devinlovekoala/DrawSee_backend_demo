@@ -1,0 +1,36 @@
+[
+    {
+        "chat_id": "e747ee48",
+        "openid": "admin123",
+        "message": [
+            {
+                "content": "一个矩阵的几何意义是代表了一种对维度空间线性变换的方式......",
+                "attachments": [
+                    {
+                        "id": "7e00d35a",
+                        "type": "pdf"
+                    }
+                ],
+                "iframe": "http://127.0.0.1:8000/knowledge/matrix",
+                "bilibili_iframe": "bvid=BV1dm4y1q76a&cid=1084504581&p=1"
+            }
+        ]
+    },
+    {
+        "chat_id": "a1234567",
+        "openid": "admin123",
+        "message": [
+            {
+                "content": "请问如何理解行列式？",
+                "attachments": [
+                    {
+                        "id": "9g00d35c",
+                        "type": "pdf"
+                    }
+                ],
+                "iframe": "http://127.0.0.1:8000/knowledge/determinant",
+                "bilibili_iframe": "bvid=BV1qW4y1q76b&cid=1084504582&p=1"
+            }
+        ]
+    }
+]

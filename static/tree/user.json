@@ -1,0 +1,16 @@
+[
+    {
+        "_id": "user1",
+        "username": "admin",
+        "password": "hashed_password_admin",
+        "role": "admin",
+        "knowledge_base_ids": ["knowledge_base_1"]
+    },
+    {
+        "_id": "user2",
+        "username": "user1",
+        "password": "hashed_password_user1",
+        "role": "user",
+        "knowledge_base_ids": ["knowledge_base_1", "knowledge_base_2"]
+    }
+]

@@ -1,0 +1,6 @@
+{
+  "_id": "knowledge_base_id",
+  "name": "string",
+  "creator_id": "user_id",
+  "created_at": "datetime"
+}

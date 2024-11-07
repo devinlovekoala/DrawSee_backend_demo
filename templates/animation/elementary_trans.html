@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>矩阵初等变换动画生成器</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 800px;
+        }
+        #animationContainer {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h2 class="mb-4 text-center">矩阵初等变换动画生成器</h2>
+        <div class="card">
+            <div class="card-body">
+                <div class="mb-3">
+                    <label for="matrixInput" class="form-label">输入矩阵和变换参数</label>
+                    <textarea class="form-control" id="matrixInput" rows="3" placeholder="例如: [[1,2,3],[4,5,6],[7,8,9]],(1,2),(2,2),(2,1,2)"></textarea>
+                </div>
+                <button class="btn btn-primary w-100" id="submitBtn">生成动画</button>
+                <div id="result" class="mt-3"></div>
+            </div>
+        </div>
+        <div id="animationContainer"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.getElementById('submitBtn').addEventListener('click', async function() {
+            const input = document.getElementById('matrixInput').value;
+
+            if (!input) {
+                alert('请输入矩阵和变换参数');
+                return;
+            }
+
+            document.getElementById('result').innerHTML = '<div class="spinner-border" role="status"><span class="visually-hidden">处理中...</span></div>';
+
+            const response = await fetch('/elementary_trans', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ matrix: input })
+            });
+
+            if (response.ok) {
+                const videoUrl = await response.text();
+                document.getElementById('result').innerHTML = '<div class="alert alert-success">动画生成成功</div>';
+                document.getElementById('animationContainer').innerHTML = `<video controls class="w-100"><source src="${videoUrl}" type="video/mp4"></video>`;
+            } else {
+                document.getElementById('result').innerHTML = '<div class="alert alert-danger">动画生成失败，请检查输入格式</div>';
+            }
+        });
+    </script>
+</body>
+</html>

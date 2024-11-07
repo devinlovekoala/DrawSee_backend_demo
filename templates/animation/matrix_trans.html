@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>矩阵的本质 — 线性变换</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .video-container {
+            width: 100%;
+            max-width: 500px;
+            margin: auto;
+        }
+        video {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        .btn-primary {
+            font-weight: bold;
+            padding: 10px 20px;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+        h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        p {
+            color: #555;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container mt-3">
+    <h2 class="text-center">矩阵的本质 — 线性变换</h2>
+
+    <form id="matrixForm" class="my-3">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" name="matrix" placeholder="例如：[1,2;3,4]" required>
+            <div class="input-group-append">
+                <input class="btn btn-primary" type="submit" value="生成动画">
+            </div>
+        </div>
+        <div id="error" class="error"></div>
+    </form>
+
+    <div id="vdo" class="video-container" style="display: none;">
+        <video id="video" controls></video>
+    </div>
+    <div id="result" class="text-center mt-2"></div>
+
+    <p class="text-center">请输入一个二阶矩阵，例如 <code>[1,2;3,4]</code>，然后点击“生成动画”</p>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+<script>
+    document.getElementById('matrixForm').addEventListener('submit', function(event) {
+        event.preventDefault();  // 阻止表单提交
+
+        const formData = new FormData(this);
+        const matrix = formData.get('matrix');
+
+        fetch('/matrix_trans', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ matrix: matrix })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("网络响应不正常");
+            }
+            return response.json();
+        })
+        .then(data => {
+            const video = document.getElementById('video');
+            const videoContainer = document.getElementById('vdo');
+            const resultDiv = document.getElementById('result');
+
+            // 设置视频源并显示视频容器
+            video.src = data.video_path;
+            videoContainer.style.display = 'block';
+            resultDiv.innerHTML = '生成成功！';
+        })
+        .catch(error => {
+            document.getElementById('error').innerText = '视频渲染失败: ' + error.message;
+        });
+    });
+</script>
+
+</body>
+</html>

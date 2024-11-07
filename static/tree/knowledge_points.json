@@ -1,0 +1,51 @@
+[
+    {
+        "_id": "1",
+        "name": ["矩阵"],
+        "resource": [
+            {
+                "type": "pdf",
+                "value": "7e00d35a"
+            },
+            {
+                "type": "animation_iframe",
+                "value": "http://127.0.0.1:8000/matrix_trans"
+            }
+        ],
+        "children": [
+            {
+                "_id": "2",
+                "name": ["线性变换"],
+                "resource": [
+                    {
+                        "type": "bilibili",
+                        "value": "bvid=BV1Ss421T7dE&cid=1596879391&p=1"
+                    },
+                    {
+                        "type": "pdf",
+                        "value": "8f00d35b"
+                    },
+                    {
+                        "type": "animation_iframe",
+                        "value": "http://127.0.0.1:8000/elementary_trans"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "_id": "3",
+        "name": ["行列式"],
+        "resource": [
+            {
+                "type": "pdf",
+                "value": "9g00d35c"
+            },
+            {
+                "type": "animation_iframe",
+                "value": "http://127.0.0.1:8000/determinant_trans"
+            }
+        ],
+        "children": []
+    }
+]

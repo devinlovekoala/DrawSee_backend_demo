@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+  <script src="{{ mathjax_path }}" id="MathJax-script" async></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>线性代数学习模块</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #eef2f3;
+      line-height: 1.6;
+      padding: 5vw;
+      margin: 0;
+      box-sizing: border-box;
+      background: linear-gradient(135deg, #e0f7fa 0%, #e0f2f1 100%);
+    }
+
+    .card {
+      background-color: #ffffff;
+      min-height: 60vh;
+      padding: 20px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      margin: 2vw;
+      text-align: center;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 6vh;
+      background-color: #aed9c1;
+    }
+
+    .content_box {
+      width: 95%;
+      max-width: 95%;
+      height: auto;
+      background-color: #d7ede4;
+      margin: 15px auto;
+      padding: 1vw;
+      border-radius: 5px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    h2 {
+      font-size: 2.5rem;
+      color: #333;
+      text-align: center;
+      font-weight: 700;
+      margin-bottom: 10px;
+      margin-top: 10px;
+      z-index: 1;
+      position: relative;
+    }
+
+    p {
+      box-sizing: border-box;
+      font-size: 1.2rem;
+      color: #666;
+      text-align: center;
+      line-height: 1.8;
+    }
+
+    button {
+      display: inline-block;
+      margin: 10px 5px;
+      padding: 10px 20px;
+      background-color: #7da490;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+      font-size: 1.2rem;
+      transition: background-color 0.3s ease-in-out;
+    }
+
+    button:active {
+      transform: scale(0.95);
+    }
+
+    button:hover {
+      background-color: #527865;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+      text-align: center;
+    }
+
+    ul li {
+      padding: 5px 0;
+    }
+
+    ul li a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    ul li a:hover {
+      text-decoration: underline;
+    }
+
+    video,
+    iframe {
+      width: 100%;
+      max-width: 950px;
+      height: auto;
+      min-height: 500px;
+      display: block;
+      margin: 20px auto;
+    }
+
+    .video-container {
+      display: flex;
+      flex-direction: column; /* 垂直排列 */
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+    }
+
+    .iframe-container {
+      display: flex;
+      flex-direction: column; /* 垂直排列 */
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+    }
+
+    .centered-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .breadcrumb {
+      margin-top: 40px;
+      margin-bottom: 10px;
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 3vw;
+      }
+
+      h2 {
+        font-size: 1.8rem;
+      }
+
+      p {
+        font-size: 1rem;
+      }
+
+      .card {
+        margin: 5vw 0;
+      }
+
+      button {
+        padding: 10px 15px;
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <h2>{{ knowledge_name }}</h2>
+  <div id="step1" class="card mb-3">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item active" aria-current="page">基本概念解读</li>
+      </ol>
+    </nav>
+    <h2>基本概念解读</h2>
+    <div id="content_box1" class="content_box">
+      <p>{{ basic_llm_explain if basic_llm_explain else "抱歉，此处资源暂未上架" }}</p>
+    </div>
+    <button onclick="nextStep(2)">还不太懂，下一步</button>
+  </div>
+
+  <div id="step2" class="card" style="display:none;">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="javascript:void(0);" onclick="goToStep(1)">基本概念解读</a></li>
+        <li class="breadcrumb-item active" aria-current="page">应试解题思维路径</li>
+      </ol>
+    </nav>
+    <h2>常见题型及解题思路</h2>
+    <div class="content_box"><p>{{ problem_llm_explain if problem_llm_explain else "抱歉，此处资源暂未上架" }}</p></div>
+    {% if example_url_list %}
+        <h2>例题</h2>
+        <div id="content_box2" class="content_box">
+          {% for example_url in example_url_list %}
+              <blockquote class="blockquote text-center">
+                  <li class="list-group-item"><a href="{{ example_url }}" target="_blank">例题资源链接 {{ loop.index }}</a></li>
+                  <footer class="blockquote-footer">Someone famous in <cite title="Source Title">Source Title</cite></footer>
+              </blockquote>
+          {% endfor %}
+        </div>
+    {% endif %}
+    <button onclick="prevStep(1)">返回上一步</button>
+    <button onclick="nextStep(3)">还不太懂，下一步</button>
+  </div>
+
+  <div id="step3" class="card" style="display:none;">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="javascript:void(0);" onclick="goToStep(1)">基本概念解读</a></li>
+      <li class="breadcrumb-item"><a href="javascript:void(0);" onclick="goToStep(2)">应试解题思维路径</a></li>
+      <li class="breadcrumb-item active" aria-current="page">几何意义</li>
+    </ol>
+  </nav>
+  <h2>几何意义</h2>
+  <div class="content_box">
+    <p>{{ geometry_llm_explain if geometry_llm_explain else "抱歉，此处资源暂未上架" }}</p>
+  </div>
+
+  {% if animation_url_list %}
+  <h2>动画</h2>
+  <div id="content_box3" class="content_box">
+    <div class="video-container">
+      {% for animation_url in animation_url_list %}
+      <video controls>
+        <source src="{{ animation_url }}" type="video/mp4">
+        您的浏览器不支持视频播放。
+      </video>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if path_dynamic_animation %}
+  <h2>动态动画生成器</h2>
+  <div id="dynamic_animation" class="content_box">
+    <iframe src="{{ path_dynamic_animation }}" frameborder="0" style="width:100%; height:500px;"></iframe>
+  </div>
+  {% endif %}
+
+  <button onclick="prevStep(2)">返回上一步</button>
+  <button onclick="nextStep(4)">还不太懂，下一步</button>
+</div>
+
+  <div id="step4" class="card" style="display:none;">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="javascript:void(0);" onclick="goToStep(1)">基本概念解读</a></li>
+        <li class="breadcrumb-item"><a href="javascript:void(0);" onclick="goToStep(2)">应试解题思维路径</a></li>
+        <li class="breadcrumb-item"><a href="javascript:void(0);" onclick="goToStep(3)">几何意义</a></li>
+        <li class="breadcrumb-item active" aria-current="page">B站学习资源推荐</li>
+      </ol>
+    </nav>
+    <h2>B站学习资源推荐</h2>
+    {% if bilibili_url_list %}
+    <div id="content_box4" class="centered-container content_box">
+      <div class="iframe-container">
+        {% for bilibili_url in bilibili_url_list %}
+          <iframe src="{{ bilibili_url }}" frameborder="0" allowfullscreen></iframe>
+        {% endfor %}
+      </div>
+    </div>
+    {% else %}
+      <p class="placeholder">抱歉，此处资源暂未上架</p>
+    {% endif %}
+    <button onclick="prevStep(3)">返回上一步</button>
+  </div>
+
+  <script>
+    function nextStep(step) {
+      document.querySelectorAll('.card').forEach(el => el.style.display = 'none');
+      document.getElementById('step' + step).style.display = 'block';
+    }
+
+    function prevStep(step) {
+      document.querySelectorAll('.card').forEach(el => el.style.display = 'none');
+      document.getElementById('step' + step).style.display = 'block';
+    }
+
+    function goToStep(step) {
+      document.querySelectorAll('.card').forEach(el => el.style.display = 'none');
+      document.getElementById('step' + step).style.display = 'block';
+    }
+  </script>
+  <script type="text/x-mathjax-config">
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-7ymO4nGrkm372HoSbq1OY2DP4pEZnMiA+E0F3zPr+JQQtQ82gQ1HPY3QIVtztVua" crossorigin="anonymous"></script>
+</body>
+</html>

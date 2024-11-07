@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>基变换动画</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .video-container {
+            width: 100%;
+            max-width: 446px;
+            margin: auto;
+        }
+        video {
+            width: 100%;
+            height: auto;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+    <script>
+        function validateMatrix(matrix) {
+            const regex = /^\[\d+,\d+;\d+,\d+\]$/;
+            return regex.test(matrix);
+        }
+
+        function submitForm(event) {
+            event.preventDefault();
+            console.log('Submitting form...');
+
+            var form = event.target;
+            var formData = new FormData(form);
+
+            var matrix1 = formData.get('matrix1');
+            var matrix2 = formData.get('matrix2');
+
+            var errorDiv = document.getElementById('error');
+            errorDiv.innerHTML = '';
+
+            if (!validateMatrix(matrix1) || !validateMatrix(matrix2)) {
+                errorDiv.innerHTML = '输入有误，请按照样例形式规范输入';
+                return;
+            }
+
+            // Disable the submit button to prevent multiple submissions
+            var submitButton = form.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+
+            // Convert form data to URL parameters
+            var urlParams = new URLSearchParams(Array.from(formData.entries()));
+
+            fetch(form.action + '?' + urlParams, {
+                method: form.method,
+            })
+            .then(response => {
+                if (response.status === 202) {
+                    var location = response.headers.get('Location');
+                    checkStatus(location, submitButton);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Re-enable the submit button in case of error
+                submitButton.disabled = false;
+            });
+        }
+
+        function checkStatus(url, submitButton) {
+            fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.state === 'SUCCESS') {
+                    console.log("yes");
+                    var video1 = document.createElement('video');
+
+                    // 设置 video 元素的属性
+                    video1.src = data.result;
+                    video1.controls = true;
+
+                    // 将 video 元素插入到页面中的某个容器中
+                    var container = document.getElementById('vdo');
+                    container.appendChild(video1);
+                    document.getElementById('result').innerHTML = '生成成功';
+
+                    // Re-enable the submit button when done
+                    submitButton.disabled = false;
+                }
+                if (data.state === 'PENDING') {
+                    document.getElementById('result').innerHTML = '视频正在生成中...';
+                    setTimeout(() => checkStatus(url, submitButton), 1000);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                // Re-enable the submit button in case of error
+                submitButton.disabled = false;
+            });
+        }
+    </script>
+</head>
+<body>
+
+<div class="container">
+    <h2 class="text-center">基变换动画展示</h2>
+    <form action="{{ url_for('basis_trans_form') }}" method="get" class="my-3" onsubmit="submitForm(event)">
+        <div class="form-group">
+            <input type="text" class="form-control" name="matrix1" placeholder="第一个矩阵，例如 [1,2;3,4]" required>
+        </div>
+        <div class="form-group">
+            <input type="text" class="form-control" name="matrix2" placeholder="第二个矩阵，例如 [1,0;0,1]" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">生成动画</button>
+    </form>
+
+    <div id="error" class="error"></div>
+    <div id="result"></div>
+
+    <div id="vdo" class="video-container"></div>
+    <p class="text-center">请在上方输入二阶方阵并点击“生成动画”以查看结果。</p>
+</div>
+
+<!-- Bootstrap JS, Popper.js, and jQuery -->
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+</body>
+</html>

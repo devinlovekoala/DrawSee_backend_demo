@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vector Addition Animation</title>
+</head>
+<body>
+    <h1>Vector Addition Animation</h1>
+
+    <form action="/generate_vector_animation" method="post">
+        <label for="vec1_x">Vector 1 X:</label>
+        <input type="number" step="any" id="vec1_x" name="vec1_x" required><br><br>
+
+        <label for="vec1_y">Vector 1 Y:</label>
+        <input type="number" step="any" id="vec1_y" name="vec1_y" required><br><br>
+
+        <label for="vec2_x">Vector 2 X:</label>
+        <input type="number" step="any" id="vec2_x" name="vec2_x" required><br><br>
+
+        <label for="vec2_y">Vector 2 Y:</label>
+        <input type="number" step="any" id="vec2_y" name="vec2_y" required><br><br>
+
+        <button type="submit">Generate Animation</button>
+    </form>
+
+    <!-- 显示生成的视频 -->
+    {% if video_url %}
+    <h2>Generated Animation:</h2>
+    <video width="600" controls>
+        <source src="{{ video_url }}" type="video/mp4">
+        Your browser does not support the video tag.
+    </video>
+    {% else %}
+    <p>Submit the form to generate a vector addition animation.</p>
+    {% endif %}
+</body>
+</html>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(event) {
+        event.preventDefault(); // 防止表单默认提交行为
+
+        // 获取表单数据
+        const formData = new FormData(form);
+
+        // 发送异步请求到服务器
+        fetch('/generate_animation', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            // 处理响应数据，显示视频
+            if (data.video_url) {
+                const videoContainer = document.getElementById('videoContainer');
+                videoContainer.innerHTML = `
+                    <h2>Generated Animation:</h2>
+                    <video width="600" controls>
+                        <source src="${data.video_url}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                `;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    });
+});
+
+</script>
+
