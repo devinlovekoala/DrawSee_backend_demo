@@ -1,10 +1,10 @@
 # 服务器IP
+import os
+
 HOST = '42.193.107.127'
 
 # 运行端口
 PORT = 8000
-
-MASHON_URL = "https://101.42.12.233:10443"
 
 APP_ID = "a9aed426-616b-4dbc-a8ea-0637d8b7db45"
 
@@ -12,13 +12,6 @@ APP_SECRET = "o7W3WejENgAv6FCR2zX5iOmCZbW8niCK"
 
 BOT_ID = "a9aed426-616b-4dbc-a8ea-0637d8b7db45"
 
-EXPLAIN_WORDS = "看来只有概念性解读对于你的学习过程还是有些抽象，那么下面我将给你对应的典型例题辅助你的理解："
-
-RECOGNIZE_KNOWLEDGE_PROMPT = "你是线性代数老师。有学生提问: {}。你的任务是识别学生提问和以下大学线性代数知识点列表中的哪些知识点有关。输出要求：输出一个知识点列表，格式为：[\"知识点1\", \"知识点2\", \"知识点3\"]，你输出的知识点名称必须和我给你提供的名称一字不差，如果提问内容和知识点列表的任何一个知识无关，那么输出空列表：[]，只能输出列表格式：[]，不能输出其他文字。以下为知识点列表："
-
-BASIC_EXPLAIN_PROMPT = "线性代数知识点——\"{}\"的概念介绍。输出要求: 1.有LaTeX公式必须能够被MathJax.js识别，即以\\(和\\)或\\[和\\]来表示，而不是$。2. 仅输出纯文本而不输出markdown，即不能使用#表示标题也不能用**表示加粗等，只使用\\n换行符，而且不能连续使用多个换行符，每次最多使用一个。3. 输出的开头和结尾不要出现类似\"以下是关于“{}”的概念介绍\"和\"希望以上内容对你有所帮助！\"这样多余的废话。"
-PROBLEM_EXPLAIN_PROMPT = "线性 你输出的所代数知识点——\"{}\"在大学线性代数课程中的常见题型介绍以及解题思路。输出要求: 1. 你输出的所有LaTeX公式必须能够被MathJax.js识别，即以\\(和\\)或\\[和\\]来表示，而不是$。2. 仅输出纯文本而不输出markdown，即不能使用#表示标题也不能用**表示加粗等，只使用\\n换行符，而且不能连续使用多个换行符，每次最多使用一个。3. 输出的开头和结尾不要出现类似\"以下是关于“{}”在大学线性代数课程中的常见题型介绍以及解题思路\"和\"希望以上内容对你有所帮助！\"这样多余的废话。"
-GEOMETRY_EXPLAIN_PROMPT = "线性代数知识点——\"{}\"的几何意义。输出要求: 1. 你输出的所有LaTeX公式必须能够被MathJax.js识别，即以\\(和\\)或\\[和\\]来表示，而不是$。2. 仅输出纯文本而不输出markdown，即不能使用#表示标题也不能用**表示加粗等，只使用\\n换行符，而且不能连续使用多个换行符，每次最多使用一个。3. 输出的开头和结尾不要出现类似\"以下是关于“{}”的几何意义\"和\"希望以上内容对你有所帮助！\"这样多余的废话。"
 
 MONGO_PORT = "27017"
 MONGO_CONFIG = {
@@ -32,3 +25,12 @@ IFRAME_API = f'http://{HOST}:{PORT}/iframe'
 STATIC_API = F'http://{HOST}:{PORT}/static'
 
 MATHJAX_PATH = f'{STATIC_API}/js/mathjax/es5/tex-chtml.js'
+
+SUPERPASS = "gjlw.3205"
+
+UPLOAD_DIR = "./docs"
+PDF_DIR = os.path.join(UPLOAD_DIR, "pdf")
+WORD_DIR = os.path.join(UPLOAD_DIR, "word")
+
+os.makedirs(PDF_DIR, exist_ok=True)
+os.makedirs(WORD_DIR, exist_ok=True)

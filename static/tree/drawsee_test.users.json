@@ -1,0 +1,11 @@
+[
+  {
+  "_id": {
+    "$oid": "672db402acea25ea12cf04a5"
+  },
+  "username": "test",
+  "email": "buptdevin@gmail.com",
+  "password_hash": "$2b$12$zsu5m1yWddO4vngY.L5jr.Kv0onpQcSd8W8NiNtpTR37Y7i8SXWUi",
+  "role": "user"
+  }
+]

@@ -1,19 +1,27 @@
 from sparkai.llm.llm import ChatSparkLLM, ChunkPrintHandler
 from sparkai.core.messages import ChatMessage
-from model.models import knowledge_points_collection
+from model.models import db
 
 
 async def process_user_question(content: str):
-    # 查询知识点匹配用户问题
-    knowledge_points = knowledge_points_collection.find()
+    # 更新后的知识点查询
+    knowledge_points_collection = db["knowledge_points"]
+    knowledge_points = await knowledge_points_collection.find().to_list(length=None)
 
     matched_knowledge = []
     for point in knowledge_points:
-        if any(keyword in content for keyword in point['name']):
+        # 根据用户问题匹配知识点的名称
+        if any(keyword in content for keyword in point.get('name', [])):
             matched_knowledge.append(point)
 
+    # 如果未匹配到知识点，返回默认信息
     if not matched_knowledge:
-        return [{"content": "未找到相关知识点。", "attachments": [], "iframe": None, "bilibili_iframe": None}]
+        return [{
+            "content": "未找到相关知识点。",
+            "attachments": [],
+            "iframe": None,
+            "bilibili_iframe": None
+        }]
 
     # 调用星火大模型获取回答
     chat = ChatSparkLLM(
@@ -27,26 +35,37 @@ async def process_user_question(content: str):
     messages = [ChatMessage(role="user", content=content)]
     handler = ChunkPrintHandler()
     response = await chat.generate([messages], callbacks=[handler])
-    content_response = response  # 根据模型返回的结果提取内容
+    content_response = response  # 提取模型的回答内容
 
     # 组装返回数据
     message_data = []
     for knowledge in matched_knowledge:
         attachments = []
-        for resource in knowledge['resource']:
-            if resource['type'] in ['pdf', 'word']:
+
+        # 如果资源的结构变化，这里需要根据新的结构进行更新
+        for resource in knowledge.get('resource', []):
+            if resource.get('type') in ['pdf', 'word']:
                 attachments.append({
-                    "id": resource['value'],  # 这里是 UUID
-                    "type": resource['type']
+                    "id": resource.get('value'),  # 使用 UUID 作为资源唯一标识
+                    "type": resource.get('type')
                 })
+
+        # 处理 iframe 和 bilibili 资源类型
+        iframe = next(
+            (res['value'] for res in knowledge.get('resource', []) if res.get('type') == 'animation_iframe'),
+            None
+        )
+        bilibili_iframe = next(
+            (res['value'] for child in knowledge.get('children', [])
+             for res in child.get('resource', []) if res.get('type') == 'bilibili'),
+            None
+        )
 
         message_data.append({
             "content": content_response,  # 模型返回的内容
             "attachments": attachments,
-            "iframe": next((res['value'] for res in knowledge['resource'] if res['type'] == 'animation_iframe'), None),
-            "bilibili_iframe": next(
-                (res['value'] for res in knowledge['children'] for res in res['resource'] if res['type'] == 'bilibili'),
-                None)
+            "iframe": iframe,
+            "bilibili_iframe": bilibili_iframe
         })
 
     return message_data

@@ -1,34 +1,53 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, status
 from datetime import timedelta
-
 from database import users_collection
-from schemas import AdminLoginResponse, AdminLoginRequest
-from service.auth import authenticate_user, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
+from schemas import AdminLoginRequest, CreateAdminResponse, CreateAdminRequest, Token, SuperAdminLoginRequest
+from service.auth import authenticate_user, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES, get_superadmin_user, get_password_hash
 
 router = APIRouter()
 
-@router.post("/admin/login", response_model=AdminLoginResponse)
-async def admin_login(request: AdminLoginRequest):
-    # 验证管理员身份
-    user = await users_collection.find_one({"username": request.username})
-    if not user or user["role"] != "admin":
-        raise HTTPException(status_code=403, detail="Access denied: Not an admin user")
+# 管理员注册接口（仅限superadmin）
+@router.post("/admin/register", response_model=CreateAdminResponse)
+async def admin_register(request: CreateAdminRequest, superadmin_user: dict = Depends(get_superadmin_user)):
+    # 检查是否已经存在相同用户名的用户
+    existing_user = await users_collection.find_one({"username": request.username})
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Username already registered")
 
-    # 验证密码
-    if not await authenticate_user(request.username, request.password):
+    # 创建新的管理员用户
+    admin_user = {
+        "username": request.username,
+        "password": get_password_hash(request.password),
+        "role": "admin",
+        "knowledge_base_ids": []
+    }
+    result = await users_collection.insert_one(admin_user)
+    new_user = await users_collection.find_one({"_id": result.inserted_id})
+
+    return {
+        "message": "Admin user registered successfully",
+        "user_id": str(new_user["_id"]),
+        "username": new_user["username"]
+    }
+
+# 管理员登录接口
+@router.post("/admin/login")
+async def admin_login(request: AdminLoginRequest):
+    user = await authenticate_user(request.username, request.password)
+    if not user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(data={"sub": user["username"]}, expires_delta=access_token_expires)
+    return {"access_token": access_token, "token_type": "bearer", "role": user["role"]}
+
+# 验证 superadmin 身份的接口
+@router.post("/superadmin-login", response_model=Token)
+async def superadmin_login(request: SuperAdminLoginRequest):
+    super_user = await authenticate_user(request.username, request.password)
+    if not super_user or super_user["role"] != "superadmin":
         raise HTTPException(status_code=400, detail="Invalid credentials")
 
-    # 创建访问令牌
-    access_token = create_access_token(
-        data={"sub": user["username"], "user_id": str(user["_id"])},
-        expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    )
+    access_token = create_access_token(data={"sub": super_user["username"], "user_id": str(super_user["_id"])},
+                                       expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    return {"access_token": access_token, "token_type": "bearer", "user_id": str(super_user["_id"])}
 
-    # 返回管理员的令牌和信息
-    return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "user_id": str(user["_id"]),
-        "role": user["role"],
-        "knowledge_base_ids": user["knowledge_base_ids"]
-    }

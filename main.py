@@ -1,13 +1,11 @@
 import os
-from typing import Dict, Any
-from uuid import uuid4
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 import uvicorn
-from model.models import knowledge_points_collection
+from init_superadmin import create_superadmin
 from routes import knowledge_points, chat_records, users, admin
 from schemas import MatrixTransformation
 from service.manim.elementary_trans import render_matrix_transformation
@@ -35,28 +33,15 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 # 动画iframe模板
 templates = Jinja2Templates(directory=os.path.join(os.getcwd(), 'templates'))
 
-# 定义文件保存路径
-UPLOAD_DIR = "./docs"
-PDF_DIR = os.path.join(UPLOAD_DIR, "pdf")
-WORD_DIR = os.path.join(UPLOAD_DIR, "word")
+# 注册启动事件
+@app.on_event("startup")
+async def on_startup():
+    await create_superadmin()
 
-# 确保目录存在
-os.makedirs(PDF_DIR, exist_ok=True)
-os.makedirs(WORD_DIR, exist_ok=True)
-
-
-@app.post("/api/knowledge")
-async def create_knowledge_point(knowledge_point: Dict[str, Any]):
-    knowledge_point["_id"] = str(uuid4())  # 生成新的知识点 ID
-    # 存储知识点到 MongoDB
-    knowledge_points_collection.insert_one(knowledge_point)
-
-    return {"message": "Knowledge point created successfully."}
-
-@app.get('/api/{knowledge}', response_class=HTMLResponse)
-async def index(request: Request, knowledge: str):
-    template_path = f"animation/{knowledge}.html"
-    return templates.TemplateResponse(template_path, {"request": request, "video_path": None})
+# @app.get('/api/{knowledge}', response_class=HTMLResponse)
+# async def index(request: Request, knowledge: str):
+#     template_path = f"animation/{knowledge}.html"
+#     return templates.TemplateResponse(template_path, {"request": request, "video_path": None})
 
 
 @app.post("/elementary_trans")
