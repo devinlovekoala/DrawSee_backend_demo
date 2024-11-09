@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends, status
+from fastapi import APIRouter, HTTPException, status
 from datetime import timedelta
 from database import users_collection
 from schemas import AdminLoginRequest, CreateAdminResponse, CreateAdminRequest, Token, SuperAdminLoginRequest
@@ -8,7 +8,7 @@ router = APIRouter()
 
 # 管理员注册接口（仅限superadmin）
 @router.post("/admin/register", response_model=CreateAdminResponse)
-async def admin_register(request: CreateAdminRequest, superadmin_user: dict = Depends(get_superadmin_user)):
+async def admin_register(request: CreateAdminRequest):
     # 检查是否已经存在相同用户名的用户
     existing_user = await users_collection.find_one({"username": request.username})
     if existing_user:
@@ -17,7 +17,7 @@ async def admin_register(request: CreateAdminRequest, superadmin_user: dict = De
     # 创建新的管理员用户
     admin_user = {
         "username": request.username,
-        "password": get_password_hash(request.password),
+        "password_hash": get_password_hash(request.password),
         "role": "admin",
         "knowledge_base_ids": []
     }
@@ -36,9 +36,17 @@ async def admin_login(request: AdminLoginRequest):
     user = await authenticate_user(request.username, request.password)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = create_access_token(data={"sub": user["username"]}, expires_delta=access_token_expires)
-    return {"access_token": access_token, "token_type": "bearer", "role": user["role"]}
+
+    access_token = create_access_token(data={"sub": user["username"], "user_id": str(user["_id"])},
+                                     expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+
+    # 添加 role 字段到返回数据中
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user_id": str(user["_id"]),
+        "role": user["role"]
+    }
 
 # 验证 superadmin 身份的接口
 @router.post("/superadmin-login", response_model=Token)
